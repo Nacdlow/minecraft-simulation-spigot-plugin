@@ -1,8 +1,16 @@
-simulator_url: "http://localhost:8080/sim"
+simulator_url: "http://localhost:8080"
+refresh_rate_ms: 250
 
 main_doors:
   - "0,60,0"
   - "0,60,1"
+
+windows:
+  1:
+    room_id: 1
+    coords:
+      - "25,64,0"
+      - "26,64,0"
 
 light_groups:
   1:
