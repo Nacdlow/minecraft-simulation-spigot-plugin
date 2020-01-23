@@ -1,0 +1,5 @@
+main: com.nacdlow.minecraftsim.Main
+name: NacdlowMinecraftSimulation
+author: Nacdlow
+api-version: 1.15
+version: 0.1

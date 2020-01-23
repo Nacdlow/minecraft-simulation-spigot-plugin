@@ -1,0 +1,15 @@
+simulator_url: "http://localhost:8080/sim"
+
+main_doors:
+  - "0,60,0"
+  - "0,60,1"
+
+light_groups:
+  1:
+    device_id: 1
+    use_active_block: redstone_block
+    use_unactive_block: cobblestone
+    activator_button: "12,64,-10"
+    activation_coords:
+      - "10,60,0"
+      - "10,60,1"
