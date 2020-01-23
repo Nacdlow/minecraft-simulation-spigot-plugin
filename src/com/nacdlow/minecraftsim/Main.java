@@ -1,12 +1,9 @@
 package com.nacdlow.minecraftsim;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin implements Listener {
+public class Main extends JavaPlugin{
     FileConfiguration config = getConfig();
 
     @Override
@@ -14,16 +11,12 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Running Nacdlow Minecraft Simulation plugin");
         config.options().copyDefaults(true);
         saveConfig();
-        getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new SimEventHandler(), this);
+        getLogger().info("Starting API Checker...");
+        (new APIChecker(this)).start();
     }
     @Override
     public void onDisable() {
     }
 
-    @EventHandler
-    public void onPlayerToggleLightSwitch(PlayerInteractEvent event) {
-        if(event.getClickedBlock().getBlockData().getAsString().equals("stone_button")) {
-            getLogger().info("A button has been clicked!");
-        }
-    }
 }
