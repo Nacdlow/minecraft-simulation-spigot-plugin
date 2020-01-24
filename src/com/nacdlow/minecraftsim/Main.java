@@ -13,7 +13,7 @@ public class Main extends JavaPlugin{
         saveConfig();
         getServer().getPluginManager().registerEvents(new SimEventHandler(), this);
         getLogger().info("Starting API Checker...");
-        (new APIChecker(this)).start();
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new APIChecker(this), 0L, 2L);
         this.getCommand("sim").setExecutor(new CommandSim());
     }
 
