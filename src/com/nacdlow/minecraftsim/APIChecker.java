@@ -1,8 +1,12 @@
 package com.nacdlow.minecraftsim;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -11,6 +15,8 @@ import java.net.URL;
 public class APIChecker extends Thread {
     private JavaPlugin plugin;
     private long checkInterval;
+
+    public static JSONObject apiData = new JSONObject();
     public APIChecker(JavaPlugin plugin) {
         this.plugin = plugin;
         this.checkInterval = this.plugin.getConfig().getLong("refresh_rate_ms");
@@ -29,12 +35,16 @@ public class APIChecker extends Thread {
                         new InputStreamReader(
                                 con.getInputStream()));
                 String inputLine;
+                String jsonResp = "";
 
                 while ((inputLine = in.readLine()) != null)
-                    System.out.println(inputLine);
+                    jsonResp += inputLine;
                 in.close();
 
-            } catch (IOException ex) {
+                Object obj = new JSONParser().parse(jsonResp);
+
+                apiData = (JSONObject) obj;
+            } catch (IOException | ParseException ex) {
                 ex.printStackTrace();
             }
             try {

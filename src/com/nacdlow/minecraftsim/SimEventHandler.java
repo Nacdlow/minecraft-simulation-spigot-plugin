@@ -9,7 +9,7 @@ public class SimEventHandler implements Listener {
     }
     @org.bukkit.event.EventHandler
     public void onPlayerToggleLightSwitch(PlayerInteractEvent event) {
-        if(event.getClickedBlock() != null && event.getClickedBlock().getBlockData().getAsString().equals("stone_button")) {
+        if(event.getClickedBlock() != null && event.getClickedBlock().getBlockData().getAsString().equals("minecraft:stone_button")) {
             Bukkit.getLogger().info("A button has been clicked!");
         }
     }

@@ -3,3 +3,8 @@ name: NacdlowMinecraftSimulation
 author: Nacdlow
 api-version: 1.15
 version: 0.1
+
+commands:
+  sim:
+    description: Nacdlow's Minecraft Simulation status command
+    usage: /sim

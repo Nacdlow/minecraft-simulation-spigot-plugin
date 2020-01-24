@@ -14,9 +14,10 @@ public class Main extends JavaPlugin{
         getServer().getPluginManager().registerEvents(new SimEventHandler(), this);
         getLogger().info("Starting API Checker...");
         (new APIChecker(this)).start();
+        this.getCommand("sim").setExecutor(new CommandSim());
     }
+
     @Override
     public void onDisable() {
     }
-
 }
