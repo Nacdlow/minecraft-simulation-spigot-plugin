@@ -33,7 +33,8 @@ public class SimEventHandler implements Listener {
                     if (plugin.getConfig().contains("light_groups." + i)) {
                         Location loc = Utils.coordsToLocation(plugin.getConfig().getString("light_groups." + i + ".activator_button"));
                         if (Utils.locationsEqual(loc, b.getLocation())) {
-                            event.getPlayer().sendMessage("[Nacdlow] Toggle light (device ID: " + plugin.getConfig().getInt("light_group." + i + ".device_id") + ")");
+                            event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_group." + i + ".device_id") + ")");
+                            Utils.doAPICall(plugin, "/toggle/"+plugin.getConfig().getInt("light_groups."+i+".activator_button"));
                         }
                     }
                 }
@@ -54,7 +55,7 @@ public class SimEventHandler implements Listener {
                 int y = loc.getBlockY();
                 int z = loc.getBlockZ();
                 String coord = "" + x + "," + y + "," + z;
-                event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "[Nacdlow] Coords: " + coord + " (copied)");
+                event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "[Nacdlow] Coords: " + coord + " ("+event.getBlock().getType().toString()+") (copied)");
                 try {
                     StringSelection stringSelection = new StringSelection(coord);
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

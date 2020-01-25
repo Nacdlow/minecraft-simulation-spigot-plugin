@@ -1,6 +1,9 @@
 package com.nacdlow.minecraftsim;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -13,6 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.List;
 
 public class APIChecker implements Runnable {
     private JavaPlugin plugin;
@@ -52,6 +57,36 @@ public class APIChecker implements Runnable {
             // Set Minecraft time to match simulation
             float minecraft_time = (long) apiData.get("minecraft_time");
             plugin.getServer().getWorld("world").setTime((long) minecraft_time); // Minecraft world is 72 times faster than real world
+            JSONObject home = (JSONObject) apiData.get("home");
+            // Update lights
+            for (int i = 0; i < 99; i++) {
+                if (plugin.getConfig().contains("light_groups." + i)) {
+                    Iterator itr = ((JSONArray) home.get("rooms")).iterator();
+                    while (itr.hasNext()) {
+                        JSONObject room = (JSONObject) itr.next();
+                        if (((long) room.get("main_light_device_id")) == plugin.getConfig().getInt("light_groups." + i + ".device_id")) {
+                            List<String> coords = plugin.getConfig().getStringList("light_groups." + i + ".activation_coords");
+                            boolean status = (boolean) room.get("light_status");
+                            String on = plugin.getConfig().getString("light_groups." + i + ".use_active_block");
+                            String off = plugin.getConfig().getString("light_groups." + i + ".use_unactive_block");
+                            try {
+                                coords.forEach(coord -> {
+                                    Location loc = Utils.coordsToLocation(coord);
+                                    if (status) {
+                                        plugin.getServer().getWorld("world").getBlockAt(loc).setType(Material.valueOf(on));
+                                    } else {
+                                        plugin.getServer().getWorld("world").getBlockAt(loc).setType(Material.valueOf(off));
+                                    }
+                                });
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            continue;
+                        }
+                    }
+                }
+            }
+
         } catch (ConnectException ex) {
             plugin.getLogger().warning("Failed to connect to API!");
         } catch (IOException | ParseException ex) {
