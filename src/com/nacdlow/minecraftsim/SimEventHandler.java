@@ -5,6 +5,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +14,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,8 +39,8 @@ public class SimEventHandler implements Listener {
                     if (plugin.getConfig().contains("light_groups." + i)) {
                         Location loc = Utils.coordsToLocation(plugin.getConfig().getString("light_groups." + i + ".activator_button"));
                         if (Utils.locationsEqual(loc, b.getLocation())) {
-                            event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_group." + i + ".device_id") + ")");
-                            Utils.doAPICall(plugin, "/toggle/" + plugin.getConfig().getInt("light_groups." + i + ".activator_button"));
+                            event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_groups." + i + ".device_id") + ")");
+                            Utils.doAPICall(plugin, "/toggle/" + plugin.getConfig().getInt("light_groups." + i + ".device_id"));
                         }
                     }
                 }
@@ -46,6 +48,14 @@ public class SimEventHandler implements Listener {
                 event.getPlayer().sendMessage(ChatColor.RED + "Nacdlow Simulation: That action is not available.");
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void playerTapVillager(PlayerInteractAtEntityEvent event) {
+        if (event.getRightClicked().getType() == EntityType.VILLAGER) {
+            event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "Villager" + ChatColor.WHITE + ": Hello " + event.getPlayer().getName() + "!");
+            event.setCancelled(true);
         }
     }
 
