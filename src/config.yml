@@ -15,8 +15,8 @@ windows:
 light_groups:
   1:
     device_id: 1
-    use_active_block: redstone_block
-    use_unactive_block: cobblestone
+    use_active_block: REDSTONE_BLOCK
+    use_unactive_block: COBBLESTONE
     activator_button: "12,64,-10"
     activation_coords:
       - "10,60,0"
