@@ -23,7 +23,7 @@ public class APIChecker implements Runnable {
     private JavaPlugin plugin;
     private long checkInterval;
 
-    public static JSONObject apiData = new JSONObject();
+    public static JSONObject apiData = null;
 
     public APIChecker(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -88,7 +88,7 @@ public class APIChecker implements Runnable {
             }
 
         } catch (ConnectException ex) {
-            plugin.getLogger().warning("Failed to connect to API!");
+            apiData = null;
         } catch (IOException | ParseException ex) {
             ex.printStackTrace();
         }
