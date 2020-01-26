@@ -1,13 +1,16 @@
 package com.nacdlow.minecraftsim;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -46,7 +49,14 @@ public class SimEventHandler implements Listener {
     }
 
     @EventHandler
+    public void violenceEvent(EntityDamageByEntityEvent event) {
+        if(event.getDamager() instanceof Player && ((Player)event.getDamager()).getGameMode() == GameMode.ADVENTURE){
+            ((Player)event.getDamager()).sendMessage(ChatColor.RED + "Nacdlow Simulation: Nacdlow is against all types of violence.");
+            event.setCancelled(true);
+        }
+    }
 
+    @EventHandler
     public void blockBreak(BlockBreakEvent event) {
         if (!event.isCancelled() && event.getPlayer().isOp()) {
             if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.REDSTONE_TORCH) {
