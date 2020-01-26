@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -37,7 +38,7 @@ public class SimEventHandler implements Listener {
                         Location loc = Utils.coordsToLocation(plugin.getConfig().getString("light_groups." + i + ".activator_button"));
                         if (Utils.locationsEqual(loc, b.getLocation())) {
                             event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_group." + i + ".device_id") + ")");
-                            Utils.doAPICall(plugin, "/toggle/"+plugin.getConfig().getInt("light_groups."+i+".activator_button"));
+                            Utils.doAPICall(plugin, "/toggle/" + plugin.getConfig().getInt("light_groups." + i + ".activator_button"));
                         }
                     }
                 }
@@ -50,8 +51,16 @@ public class SimEventHandler implements Listener {
 
     @EventHandler
     public void violenceEvent(EntityDamageByEntityEvent event) {
-        if(event.getDamager() instanceof Player && ((Player)event.getDamager()).getGameMode() == GameMode.ADVENTURE){
-            ((Player)event.getDamager()).sendMessage(ChatColor.RED + "Nacdlow Simulation: Nacdlow is against all types of violence.");
+        if (event.getDamager() instanceof Player && ((Player) event.getDamager()).getGameMode() == GameMode.ADVENTURE) {
+            ((Player) event.getDamager()).sendMessage(ChatColor.RED + "Nacdlow Simulation: Nacdlow is against all types of violence.");
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void breakPaintingEvent(HangingBreakByEntityEvent event) {
+        if (event.getRemover() instanceof Player && ((Player) event.getRemover()).getGameMode() == GameMode.ADVENTURE) {
+            ((Player) event.getRemover()).sendMessage(ChatColor.RED + "Nacdlow Simulation: NOPE.");
             event.setCancelled(true);
         }
     }
@@ -65,7 +74,7 @@ public class SimEventHandler implements Listener {
                 int y = loc.getBlockY();
                 int z = loc.getBlockZ();
                 String coord = "" + x + "," + y + "," + z;
-                event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "[Nacdlow] Coords: " + coord + " ("+event.getBlock().getType().toString()+") (copied)");
+                event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "[Nacdlow] Coords: " + coord + " (" + event.getBlock().getType().toString() + ") (copied)");
                 try {
                     StringSelection stringSelection = new StringSelection(coord);
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
