@@ -13,6 +13,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -55,6 +57,17 @@ public class SimEventHandler implements Listener {
     public void playerTapVillager(PlayerInteractAtEntityEvent event) {
         if (event.getRightClicked().getType() == EntityType.VILLAGER) {
             event.getPlayer().sendMessage(ChatColor.DARK_GRAY + "Villager" + ChatColor.WHITE + ": Hello " + event.getPlayer().getName() + "!");
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void noTrading(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player)) {
+            return;
+        }
+        if (event.getInventory().getType() == InventoryType.MERCHANT) {
+            event.getPlayer().damage(0.1);
             event.setCancelled(true);
         }
     }

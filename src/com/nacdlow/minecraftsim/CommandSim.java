@@ -24,10 +24,12 @@ public class CommandSim implements CommandExecutor {
             JSONObject weather = (JSONObject) APIChecker.apiData.get("weather");
             JSONObject home = (JSONObject) APIChecker.apiData.get("home");
 
-            sender.sendMessage("Outdoor Temperature: " + home.get("power_gen_rate") + " kWh of " + home.get("solar_max_power") + " max");
             sender.sendMessage("Outdoor Temperature: " + weather.get("outdoor_temp"));
             sender.sendMessage("Outdoor Humidity: " + weather.get("humidity"));
             sender.sendMessage("Cloud Cover: " + weather.get("cloud_cover"));
+            sender.sendMessage("Power Generation: " + home.get("power_gen_rate") + " kW of " + home.get("solar_max_power") + " max");
+            sender.sendMessage("Net Power: " + home.get("net_power") + " kW");
+            sender.sendMessage("Battery Storage: " + home.get("battery_store") + " kWh");
         }
         return true;
     }
