@@ -5,6 +5,8 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,12 +39,14 @@ public class SimEventHandler implements Listener {
         Block b = event.getClickedBlock();
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (b.getType() == Material.STONE_BUTTON || b.getType() == Material.OAK_BUTTON) {
-                for (int i = 0; i < 99; i++) {
-                    if (plugin.getConfig().contains("light_groups." + i)) {
-                        Location loc = Utils.coordsToLocation(plugin.getConfig().getString("light_groups." + i + ".activator_button"));
-                        if (Utils.locationsEqual(loc, b.getLocation())) {
-                            event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_groups." + i + ".device_id") + ")");
-                            Utils.doAPICall(plugin, "/toggle/" + plugin.getConfig().getInt("light_groups." + i + ".device_id"));
+                if (!((Switch)b.getState().getBlockData()).isPowered()){
+                    for (int i = 0; i < 99; i++) {
+                        if (plugin.getConfig().contains("light_groups." + i)) {
+                            Location loc = Utils.coordsToLocation(plugin.getConfig().getString("light_groups." + i + ".activator_button"));
+                            if (Utils.locationsEqual(loc, b.getLocation())) {
+                                event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_groups." + i + ".device_id") + ")");
+                                Utils.doAPICall(plugin, "/toggle/" + plugin.getConfig().getInt("light_groups." + i + ".device_id"));
+                            }
                         }
                     }
                 }
@@ -67,7 +71,6 @@ public class SimEventHandler implements Listener {
             return;
         }
         if (event.getInventory().getType() == InventoryType.MERCHANT) {
-            event.getPlayer().damage(0.1);
             event.setCancelled(true);
         }
     }
@@ -76,6 +79,7 @@ public class SimEventHandler implements Listener {
     public void violenceEvent(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && ((Player) event.getDamager()).getGameMode() == GameMode.ADVENTURE) {
             ((Player) event.getDamager()).sendMessage(ChatColor.RED + "Nacdlow Simulation: Nacdlow is against all types of violence.");
+            ((Player)event.getDamager()).damage(0.1);
             event.setCancelled(true);
         }
     }
