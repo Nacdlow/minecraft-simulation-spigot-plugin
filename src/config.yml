@@ -1,4 +1,4 @@
-simulator_url: "http://localhost:8080"
+simulator_url: "https://local.nacdlow.com:8080"
 refresh_rate_ms: 250
 
 main_doors:
