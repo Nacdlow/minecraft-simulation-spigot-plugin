@@ -30,62 +30,105 @@ public class APIChecker implements Runnable {
         this.checkInterval = this.plugin.getConfig().getLong("refresh_rate_ms");
     }
 
-    @Override
-    public void run() {
-        try {
-            // Get data from API
-            String verEnc = URLEncoder.encode(plugin.getServer().getVersion(), StandardCharsets.UTF_8.toString());
-            URL url = new URL(plugin.getConfig().getString("simulator_url") + "/sim/data.json?from=minecraft&server=" + verEnc);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setConnectTimeout(500);
-            con.setReadTimeout(500);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(
-                            con.getInputStream()));
-            String inputLine;
-            String jsonResp = "";
+    public void updateWorld() throws IOException, ParseException {
+        // Get data from API
+        String verEnc = URLEncoder.encode(plugin.getServer().getVersion(), StandardCharsets.UTF_8.toString());
+        URL url = new URL(plugin.getConfig().getString("simulator_url") + "/sim/data.json?from=minecraft&server=" + verEnc);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setConnectTimeout(500);
+        con.setReadTimeout(500);
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(
+                        con.getInputStream()));
+        String inputLine;
+        String jsonResp = "";
 
-            while ((inputLine = in.readLine()) != null)
-                jsonResp += inputLine;
-            in.close();
+        while ((inputLine = in.readLine()) != null)
+            jsonResp += inputLine;
+        in.close();
 
-            // Convert to JSON
-            Object obj = new JSONParser().parse(jsonResp);
-            apiData = (JSONObject) obj;
+        // Convert to JSON
+        Object obj = new JSONParser().parse(jsonResp);
+        apiData = (JSONObject) obj;
 
-            // Set Minecraft time to match simulation
-            float minecraft_time = (long) apiData.get("minecraft_time");
-            plugin.getServer().getWorld("world").setTime((long) minecraft_time); // Minecraft world is 72 times faster than real world
-            JSONObject home = (JSONObject) apiData.get("home");
-            // Update lights
-            for (int i = 0; i < 99; i++) {
-                if (plugin.getConfig().contains("light_groups." + i)) {
-                    Iterator itr = ((JSONArray) home.get("rooms")).iterator();
-                    while (itr.hasNext()) {
-                        JSONObject room = (JSONObject) itr.next();
-                        if (((long) room.get("main_light_device_id")) == plugin.getConfig().getInt("light_groups." + i + ".device_id")) {
-                            List<String> coords = plugin.getConfig().getStringList("light_groups." + i + ".activation_coords");
-                            boolean status = (boolean) room.get("light_status");
-                            String on = plugin.getConfig().getString("light_groups." + i + ".use_active_block");
-                            String off = plugin.getConfig().getString("light_groups." + i + ".use_unactive_block");
-                            try {
-                                coords.forEach(coord -> {
-                                    Location loc = Utils.coordsToLocation(coord);
-                                    if (status) {
-                                        plugin.getServer().getWorld("world").getBlockAt(loc).setType(Material.valueOf(on));
-                                    } else {
-                                        plugin.getServer().getWorld("world").getBlockAt(loc).setType(Material.valueOf(off));
-                                    }
-                                });
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                            continue;
+        // Set Minecraft time to match simulation
+        float minecraft_time = (long) apiData.get("minecraft_time");
+        plugin.getServer().getWorld("world").setTime((long) minecraft_time); // Minecraft world is 72 times faster than real world
+    }
+
+    public void updateLightStatus() throws IOException, ParseException {
+        // Get data from API
+        String verEnc = URLEncoder.encode(plugin.getServer().getVersion(), StandardCharsets.UTF_8.toString());
+        URL url = new URL(plugin.getConfig().getString("bridge_plugin_url") + "/get_device_states");
+
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setConnectTimeout(500);
+        con.setReadTimeout(500);
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(
+                        con.getInputStream()));
+        String inputLine;
+        String jsonResp = "";
+
+        while ((inputLine = in.readLine()) != null)
+            jsonResp += inputLine;
+        in.close();
+
+        // Convert to JSON
+        Object obj = new JSONParser().parse(jsonResp);
+        JSONArray root = (JSONArray) obj;
+        // Update lights
+        for (int i = 0; i < 99; i++) {
+            if (plugin.getConfig().contains("light_groups." + i)) {
+                Iterator itr = root.iterator();
+                while (itr.hasNext()) {
+                    JSONObject room = (JSONObject) itr.next();
+                    String id = (String)room.get("Id");
+                    if (plugin.getConfig().contains("light_groups."+id)){
+                        List<String> coords = plugin.getConfig().getStringList("light_groups." + id + ".activation_coords");
+                        boolean status = (boolean) room.get("Status");
+                        String on = plugin.getConfig().getString("light_groups." + id + ".use_active_block");
+                        String off = plugin.getConfig().getString("light_groups." + id + ".use_unactive_block");
+                        try {
+                            coords.forEach(coord -> {
+                                Location loc = Utils.coordsToLocation(coord);
+                                if (status) {
+                                    plugin.getServer().getWorld("world").getBlockAt(loc).setType(Material.valueOf(on));
+                                } else {
+                                    plugin.getServer().getWorld("world").getBlockAt(loc).setType(Material.valueOf(off));
+                                }
+                            });
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                 }
             }
+        }
+    }
+
+    public void registerDevices() throws IOException {
+        for (int i = 0; i < 99; i++) {
+            if (plugin.getConfig().contains("light_groups." + i)) {
+                URL url = new URL(plugin.getConfig().getString("bridge_plugin_url") + "/register_light_group/" + i);
+
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("GET");
+                con.setConnectTimeout(500);
+                con.setReadTimeout(500);
+                con.getInputStream();
+            }
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            registerDevices();
+            updateWorld();
+            updateLightStatus();
 
         } catch (ConnectException ex) {
             apiData = null;

@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 
 public class Utils {
@@ -20,6 +19,19 @@ public class Utils {
 
     public static boolean locationsEqual(Location loc1, Location loc2) {
         return (loc1.getBlockX() == loc2.getBlockX() && loc1.getBlockY() == loc2.getBlockY() && loc1.getBlockZ() == loc2.getBlockZ());
+    }
+
+    public static void doBridgeCall(JavaPlugin plugin, String call) {
+        try {
+            URL url = new URL(plugin.getConfig().getString("bridge_plugin_url") +  call);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setConnectTimeout(5000);
+            con.setReadTimeout(5000);
+            con.getInputStream();
+        } catch (Exception e) {
+
+        }
     }
 
     public static void doAPICall(JavaPlugin plugin, String call) {

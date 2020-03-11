@@ -45,7 +45,8 @@ public class SimEventHandler implements Listener {
                             Location loc = Utils.coordsToLocation(plugin.getConfig().getString("light_groups." + i + ".activator_button"));
                             if (Utils.locationsEqual(loc, b.getLocation())) {
                                 event.getPlayer().sendMessage(ChatColor.GREEN + "[Nacdlow Debug] Toggle light (device ID: " + plugin.getConfig().getInt("light_groups." + i + ".device_id") + ")");
-                                Utils.doAPICall(plugin, "/toggle/" + plugin.getConfig().getInt("light_groups." + i + ".device_id"));
+
+                                Utils.doBridgeCall(plugin, "/toggle_group_status/" + i);
                             }
                         }
                     }
